@@ -1,12 +1,13 @@
 #include <SoftwareSerial.h>
 
-#define resistance 10000
-#define voltage 5.00
-#define B 3977
+#define R 10000
+#define V 5.00
+#define Ro 10000
+#define coefKelvin 273.15
 #define T0 (25.00 + 273.15)
 
 int analogValue; 
-float voltageValue, resistanceValue, ln, TC, TK, TF, RT;
+float Temp, TC, TF, TK;
 
 int txPin = 2;
 int rxPin = 3;
@@ -30,14 +31,12 @@ char* floatToStr(float value) {
   return str;
 }
 
-float initTemperatureFromAnalog() {
+void initTemperatureFromAnalog() {
   analogValue = analogRead(thermistorPin);
-  voltageValue = analogValue * (voltage / 1023.00);
-  resistanceValue = voltage - voltageValue;
-  RT = voltageValue / (resistanceValue / resistance);
-  ln = log(RT / resistance);
-  TK = (1 / ((ln / B) + (1 / T0)));
-  TC = TK - 273.15;
+  Temp = log(((1024.00 * Ro/analogValue) - Ro));
+  Temp = 1 / (0.001129148 + (0.000234125 * Temp) + (0.0000000876741 * Temp * Temp * Temp));
+  TK = Temp;
+  TC = TK - coefKelvin;
   TF = (TC * 1.8) + 32;
 }
 
